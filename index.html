@@ -149,6 +149,10 @@ dialog h2{margin:0 0 12px;font-family:var(--serif);font-weight:500;font-size:22p
 dialog .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
 .carry{max-height:210px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin-top:6px}
 .carry label{display:flex;gap:8px;align-items:center;padding:3px 0}
+#ptr{position:fixed;left:50%;top:0;z-index:60;transform:translate(-50%,-60px);background:var(--bg2);border:1px solid var(--line);border-radius:20px;padding:7px 14px;font-size:13px;color:var(--soft);box-shadow:0 6px 18px rgba(0,0,0,.45);pointer-events:none;opacity:0;white-space:nowrap}
+#ptr.go{color:var(--gold);border-color:var(--gold)}
+#ptr.anim{transition:transform .25s ease,opacity .25s ease}
+@media (pointer:coarse){html,body{overscroll-behavior-y:contain}}
 #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--gold);border-radius:10px;padding:10px 14px;display:none;gap:14px;align-items:center;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.5)}
 #toast.show{display:flex}
 .empty{color:var(--soft);padding:14px 4px;text-align:center}
@@ -1015,6 +1019,60 @@ async function initFile(){
     await loadData();
   }catch(e){fileFail(e);}
 }
+async function pullRefresh(){
+  await writing.catch(()=>{});
+  if(fileSt.status==='none'||fileSt.status==='checking')return 'skip';
+  if(fileSt.status!=='ok'||!fileSt.loaded){await loadData();return 'new';}
+  const d=await readData();
+  if(d.rev&&d.rev===fileSt.rev)return 'same';
+  if(!d.txt.trim())throw new Error(DATA_NAME+' è vuoto');
+  const o=JSON.parse(d.txt);if(!o||!o.months||!o.settings)throw new Error(DATA_NAME+' non valido');
+  state=migrate(o);ccCache=null;ui.sim=null;ensureUi();
+  fileSt.rev=d.rev;fileSt.last=null;render();
+  return 'new';
+}
+(function(){
+  const TH=70,MAX=110;
+  const el=document.createElement('div');el.id='ptr';document.body.appendChild(el);
+  let y0=null,x0=0,dy=0,active=false,busy=false;
+  const show=(y,txt,go)=>{el.textContent=txt;el.classList.toggle('go',!!go);el.style.opacity=y>8?'1':'0';el.style.transform='translate(-50%,'+(y-50)+'px)';};
+  const hide=()=>{el.classList.add('anim');show(0,el.textContent,false);};
+  const blocked=t=>{
+    if(t.closest('input,select,textarea,details.menu[open],#toast'))return true;
+    for(let n=t;n&&n!==document.body;n=n.parentElement){if(n.scrollTop>0)return true;}
+    return false;
+  };
+  document.addEventListener('touchstart',e=>{
+    if(busy||e.touches.length!==1||(window.scrollY||document.documentElement.scrollTop)>0||blocked(e.target)){y0=null;return;}
+    y0=e.touches[0].clientY;x0=e.touches[0].clientX;dy=0;active=false;
+  },{passive:true});
+  document.addEventListener('touchmove',e=>{
+    if(y0==null)return;
+    const t=e.touches[0],ddy=t.clientY-y0,ddx=t.clientX-x0;
+    if(!active){
+      if(Math.abs(ddx)>Math.abs(ddy)||ddy<=0){if(Math.abs(ddx)>10||ddy<-5)y0=null;return;}
+      if(ddy<10)return;
+      active=true;el.classList.remove('anim');
+    }
+    if((window.scrollY||document.documentElement.scrollTop)>0){y0=null;active=false;hide();return;}
+    if(e.cancelable)e.preventDefault();
+    dy=Math.min(MAX,ddy*.5);
+    show(dy,dy>=TH*.8?'Rilascia per aggiornare':'Trascina per aggiornare',dy>=TH*.8);
+  },{passive:false});
+  const end=async()=>{
+    if(y0==null||!active){y0=null;return;}
+    y0=null;active=false;
+    if(dy<TH*.8){hide();return;}
+    busy=true;el.classList.add('anim');show(60,'Aggiornamento…',true);
+    let msg='Dati aggiornati';
+    try{const r=await pullRefresh();if(r==='same')msg='Già aggiornati';else if(r==='skip')msg='Accedi a Dropbox per aggiornare';}
+    catch(err){fileFail(err);msg='Aggiornamento non riuscito';}
+    show(60,msg,false);
+    setTimeout(()=>{hide();busy=false;},900);
+  };
+  document.addEventListener('touchend',end);
+  document.addEventListener('touchcancel',()=>{y0=null;if(active){active=false;hide();}});
+})();
 window.__app={get state(){return state;},totals,projection,cycleInfo,simBase,tesoretto,esopTotNet,keys,ui,render,parseAmount,evalExpr};
 render();initFile();
 })();
