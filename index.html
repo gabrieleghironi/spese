@@ -1030,8 +1030,8 @@ function mFixBlock(b,m){
 function mMese(){
   const m=state.months[ui.key];const t=totals(m);const ci=cycleInfo(ui.key);const pr=projection(m,ci);
   const D1=(S().cycleStartDay||27)-1;
-  const hero=pr?`<div class="m-card"><div class="m-lb">Saldo previsto al ${D1}</div><div class="m-big ${cls(pr.saldo)}">${eur0(pr.saldo)}</div>
-      <div class="m-row m-soft m-sm"><span>Oggi sul conto ${eur0(t.attuale)}</span><span>${pr.left===1?'manca 1 giorno':'mancano '+pr.left+' giorni'}</span></div>
+  const hero=pr?`<div class="m-card"><div class="m-lb">Saldo sul conto oggi</div><div class="m-big">${eur0(t.attuale)}</div>
+      <div class="m-row m-soft m-sm"><span>Previsto al ${D1}: <span class="mono ${cls(pr.saldo)}">${eur0(pr.saldo)}</span></span><span>${pr.left===1?'manca 1 giorno':'mancano '+pr.left+' giorni'}</span></div>
       <div class="bar" style="margin-top:8px"><i style="width:${Math.round(ci.frac*100)}%"></i></div></div>`
     :`<div class="m-card"><div class="m-lb">${ci.status==='closed'?'Saldo finale del ciclo':'Saldo sul conto'}</div><div class="m-big">${eur0(t.attuale)}</div><div class="m-soft m-sm">${ci.status==='closed'?'Ciclo chiuso':'Ciclo non ancora iniziato'}</div></div>`;
   const tiles=`<div class="m-2"><div class="m-card m-tile"><div class="m-lb">Residuo mese</div><div class="mono m-num ${cls(t.residuo)}">${eur0(t.residuo)}</div></div>
