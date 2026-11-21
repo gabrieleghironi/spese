@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0F1E33">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -149,10 +149,57 @@ dialog h2{margin:0 0 12px;font-family:var(--serif);font-weight:500;font-size:22p
 dialog .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
 .carry{max-height:210px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin-top:6px}
 .carry label{display:flex;gap:8px;align-items:center;padding:3px 0}
-#ptr{position:fixed;left:50%;top:0;z-index:60;transform:translate(-50%,-60px);background:var(--bg2);border:1px solid var(--line);border-radius:20px;padding:7px 14px;font-size:13px;color:var(--soft);box-shadow:0 6px 18px rgba(0,0,0,.45);pointer-events:none;opacity:0;white-space:nowrap}
+#ptr{position:fixed;left:50%;top:env(safe-area-inset-top,0px);z-index:60;transform:translate(-50%,-60px);background:var(--bg2);border:1px solid var(--line);border-radius:20px;padding:7px 14px;font-size:13px;color:var(--soft);box-shadow:0 6px 18px rgba(0,0,0,.45);pointer-events:none;opacity:0;white-space:nowrap}
 #ptr.go{color:var(--gold);border-color:var(--gold)}
 #ptr.anim{transition:transform .25s ease,opacity .25s ease}
 html,body{overscroll-behavior-y:none}
+#sbar{position:fixed;left:0;right:0;top:0;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:55}
+.wrap{padding-top:calc(14px + env(safe-area-inset-top,0px))}
+@media (max-width:640px){
+  .wrap{padding-top:calc(10px + env(safe-area-inset-top,0px))}
+  table{font-size:13px}
+  th{font-size:9.5px;letter-spacing:.04em;padding:4px 3px}
+  td{padding:5px 3px}
+  td.mono,td .mono{font-size:12.5px}
+  .mt,.mt tbody{display:block;width:100%}
+  .mt thead{display:none}
+  .mt tr{display:grid;grid-template-columns:30px repeat(4,minmax(0,1fr));gap:6px;align-items:end;padding:10px 0;border-bottom:1px solid rgba(40,64,95,.55)}
+  .mt td{display:block;width:auto!important;border:0;padding:0;min-width:0;text-align:left}
+  .mt td.empty{grid-column:1/-1}
+  .mt td:first-child{grid-column:1;grid-row:1;align-self:center}
+  .mt .cell{font-size:16px;border-color:var(--line);background:rgba(255,255,255,.03);padding:5px 6px}
+  .mt input[type=date].cell{font-size:14px;padding:5px 4px}
+  .mt .per{flex-wrap:wrap}.mt .per select{width:100%;border-color:var(--line);font-size:14px;padding:5px 2px}
+  .mt td[data-l]::before,.mt-fix td:nth-child(3)::before,.mt-fix td:nth-child(4)::before,.mt-fix td:nth-child(5)::before,.mt-fix td:nth-child(6)::before,
+  .mt-ent td:nth-child(3)::before,.mt-ent td:nth-child(4)::before,.mt-spe tr.grp td:nth-child(3)::before,.mt-spe tr.grp td:nth-child(4)::before,.mt-spe tr.grp td:nth-child(5)::before,.mt-spe tr.det td:nth-child(3)::before{
+    display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);margin-bottom:3px;text-align:left}
+  .mt-fix td:nth-child(2){grid-column:2/5;grid-row:1}
+  .mt-fix td:nth-child(7){grid-column:5;grid-row:1;justify-self:end;align-self:center}
+  .mt-fix td:nth-child(3){grid-column:2;grid-row:2}.mt-fix td:nth-child(3)::before{content:'Periodo'}
+  .mt-fix td:nth-child(4){grid-column:3;grid-row:2}.mt-fix td:nth-child(4)::before{content:'Budget'}
+  .mt-fix td:nth-child(5){grid-column:4;grid-row:2}.mt-fix td:nth-child(5)::before{content:'Reale'}
+  .mt-fix td:nth-child(6){grid-column:5;grid-row:2;align-self:stretch;display:flex;flex-direction:column;justify-content:space-between;text-align:right;padding-bottom:6px}.mt-fix td:nth-child(6)::before{content:'Diff.';text-align:right}
+  .mt-ent td:nth-child(2){grid-column:2/5;grid-row:1;display:flex;align-items:center;gap:6px}.mt-ent td:nth-child(2) .cell{flex:1 1 auto}
+  .mt-ent td:nth-child(6){grid-column:5;grid-row:1;justify-self:end;align-self:center}
+  .mt-ent td:nth-child(3){grid-column:2/4;grid-row:2}.mt-ent td:nth-child(3)::before{content:'Data'}
+  .mt-ent td:nth-child(4){grid-column:4;grid-row:2}.mt-ent td:nth-child(4)::before{content:'Importo'}
+  .mt-ent td:nth-child(5){grid-column:5;grid-row:2;justify-self:end;padding-bottom:4px}
+  .mt-spe tr.grp td:nth-child(2){grid-column:2/-1;grid-row:1}
+  .mt-spe tr.grp td:nth-child(3){grid-column:2;grid-row:2}.mt-spe tr.grp td:nth-child(3)::before{content:'Budget'}
+  .mt-spe tr.grp td:nth-child(4){grid-column:3/5;grid-row:2;text-align:right;padding-bottom:6px}.mt-spe tr.grp td:nth-child(4)::before{content:'Reale';text-align:right}
+  .mt-spe tr.grp td:nth-child(5){grid-column:5;grid-row:2;text-align:right;padding-bottom:6px}.mt-spe tr.grp td:nth-child(5)::before{content:'Rimasti';text-align:right}
+  .grid.g2{grid-template-columns:minmax(0,1fr)!important}
+  .lever .mono{white-space:nowrap}
+  .mt-spe tr.grp{background:rgba(255,255,255,.025)}.mt-spe tr.grp td{background:none}
+  td.mono,td .mono{white-space:nowrap}
+  .mt .per select{font-size:13px!important}
+  .mt-spe tr.det{padding:10px 6px;background:rgba(0,0,0,.18)}.mt-spe tr.det td{background:none}
+  .mt-spe tr.det td:nth-child(2){grid-column:2/-1;grid-row:1}
+  .mt-spe tr.det td:nth-child(3){grid-column:2/4;grid-row:2}.mt-spe tr.det td:nth-child(3)::before{content:'Importo'}
+  .mt-spe tr.det td:nth-child(4){grid-column:5;grid-row:2;justify-self:end;text-align:right}
+  .mt-spe tr.det .row{gap:6px}.mt-spe tr.det .row>*{flex:1 1 45%;width:auto!important}.mt-spe tr.det .row>.once{flex:0 0 auto}
+  .mt-spe tr.det select.cell{font-size:14px!important}
+}
 #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--gold);border-radius:10px;padding:10px 14px;display:none;gap:14px;align-items:center;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.5)}
 #toast.show{display:flex}
 .empty{color:var(--soft);padding:14px 4px;text-align:center}
@@ -160,7 +207,7 @@ svg text{font-family:var(--mono);fill:var(--soft);font-size:10px}
 </style>
 </head>
 <body>
-<div id="app"></div>
+<div id="sbar"></div><div id="app"></div>
 <div id="toast" class="ephemeral"><span id="toast-msg"></span><button class="btn sm" id="toast-undo">Annulla</button></div>
 <dialog id="dlg" class="ephemeral"></dialog>
 <input type="file" id="file-import" accept="application/json,.json" hidden class="ephemeral">
@@ -544,7 +591,7 @@ function entrateCard(m,t){
     <td style="width:34px">${i.salary?'':`<button class="once ${i.once?'on':''}" data-act="once" data-block="entrate" data-id="${i.id}" title="Una tantum: esclusa dalle entrate extra ricorrenti">1×</button>`}</td>
     <td style="width:26px"><button class="iconbtn" data-act="del" data-block="entrate" data-id="${i.id}" title="Elimina">✕</button></td></tr>`).join('');
   return `<div class="card"><h3>Entrate (+) <span class="tot mono">${eur(t.entrateTot)}</span></h3>
-  <table><thead><tr><th></th><th class="l">Categoria</th><th class="l">Data</th><th>Reale</th><th></th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="6" class="empty">Nessuna entrata</td></tr>'}</tbody></table>
+  <table class="mt mt-ent"><thead><tr><th></th><th class="l">Categoria</th><th class="l">Data</th><th>Reale</th><th></th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="6" class="empty">Nessuna entrata</td></tr>'}</tbody></table>
   <form class="add" data-form="addEntrata"><input class="grow" name="cat" list="dl-ent" placeholder="Categoria (es. Vinted)" required><input class="dt" type="date" name="date" value="${defDate()}"><input class="amt" name="amt" placeholder="Importo" required inputmode="decimal"><button class="btn primary sm">Aggiungi</button></form>
   <div class="hint" style="margin-top:6px">La riga Stipendio è già inclusa nel C/C iniziale: non va spuntata. Un importo negativo si scrive con "-" (es. -900).</div></div>`;
 }
@@ -563,7 +610,7 @@ function fixedCard(block,m,t){
     <td style="width:72px" class="r mono ${cls(i.amount-i.budget)}">${ann?`<span class="hint" title="Quota mensile">${eur(quota(i))}/m</span>`:eur(i.amount-i.budget)}</td>
     <td style="width:26px"><button class="iconbtn" data-act="del" ${da} title="Elimina">✕</button></td></tr>`;}).join('');
   return `<div class="card"><h3>${BLK[block]} (-) <span class="tot mono">${eur(tot)}</span></h3>
-  <table><thead><tr><th></th><th class="l">Voce</th><th class="l">Periodicità</th><th>Budget</th><th>Reale</th><th>Diff.</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="7" class="empty">Nessuna voce</td></tr>'}</tbody></table>
+  <table class="mt mt-fix"><thead><tr><th></th><th class="l">Voce</th><th class="l">Periodicità</th><th>Budget</th><th>Reale</th><th>Diff.</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="7" class="empty">Nessuna voce</td></tr>'}</tbody></table>
   <form class="add" data-form="addFixed" data-block="${block}"><input class="grow" name="cat" placeholder="Voce" required><select name="per" data-chg="addPer"><option value="mensile">mensile</option><option value="annuale">annuale</option></select>${monthSel('name="month" disabled style="display:none"','',false)}<input class="amt" name="amt" placeholder="Importo" required inputmode="decimal"><button class="btn primary sm">Aggiungi</button></form>
   ${L.some(isAnn)?'<div class="hint" style="margin-top:6px">Annuali: importo intero dell\'addebito. Pesano 1/12 nel residuo e nel 50/30/20, e per intero nella proiezione solo nel ciclo del mese di addebito (il ciclo di un mese va dal 27 del mese precedente al 26).</div>':''}</div>`;
 }
@@ -597,7 +644,7 @@ function speseCard(m,t){
   <div class="row" id="sug" style="margin:-4px 0 8px;min-height:4px"></div>
   <div class="row" style="justify-content:space-between;margin-bottom:6px"><span class="hint">Scrivi cosa hai speso: ti propongo la categoria principale. Digita l'importo positivo: viene registrato come spesa (usa "+" per un rimborso). Sono ammessi calcoli, es. 12,5+3.</span>
     <button class="btn sm" data-act="sortSpese">Ordina per: ${ui.sortSpese==='ordine'?'inserimento':'importo'}</button></div>
-  <table><thead><tr><th></th><th class="l">Categoria</th><th>Budget</th><th>Reale</th><th>Rimasti</th></tr></thead><tbody>${rows||'<tr><td colspan="5" class="empty">Nessuna spesa registrata</td></tr>'}</tbody></table></div>`;
+  <table class="mt mt-spe"><thead><tr><th></th><th class="l">Categoria</th><th>Budget</th><th>Reale</th><th>Rimasti</th></tr></thead><tbody>${rows||'<tr><td colspan="5" class="empty">Nessuna spesa registrata</td></tr>'}</tbody></table></div>`;
 }
 function datalists(){
   const c=allCats();
@@ -921,7 +968,7 @@ const DBX_REDIRECT='https://gabrieleghironi.github.io/spese/';
 const DATA_NAME='spese-dati.json',DATA_PATH='/'+DATA_NAME;
 const TOK_KEY='spese-dbx-refresh';
 const fileSt={status:'checking',last:null,err:'',rev:null,loaded:false,pending:0,token:null,tokenExp:0};
-function fileStatusHtml(){return (fileSt.last?'Salvato su Dropbox alle '+fileSt.last.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}):'Dati letti da Dropbox')+' · v3';}
+function fileStatusHtml(){return fileSt.last?'Salvato su Dropbox alle '+fileSt.last.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}):'Dati letti da Dropbox';}
 function updFileBar(){const el=$('#file-status');if(el)el.innerHTML=fileStatusHtml();}
 function gateHtml(){
   let body,btn='';
