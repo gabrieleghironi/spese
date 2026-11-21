@@ -1035,19 +1035,19 @@ function mFixBlock(b,m){
 function mMese(){
   const m=state.months[ui.key];const t=totals(m);const ci=cycleInfo(ui.key);const pr=projection(m,ci);
   const D1=(S().cycleStartDay||27)-1;
-  const hero=pr?`<div class="m-card"><div class="m-lb">Saldo sul conto oggi</div><div class="m-big">${eur0(t.attuale)}</div>
-      <div class="m-row m-soft m-sm"><span>Previsto al ${D1}: <span class="mono ${cls(pr.saldo)}">${eur0(pr.saldo)}</span></span><span>${pr.left===1?'manca 1 giorno':'mancano '+pr.left+' giorni'}</span></div>
+  const hero=pr?`<div class="m-card"><div class="m-lb">Saldo sul conto oggi</div><div class="m-big">${eur(t.attuale)}</div>
+      <div class="m-row m-soft m-sm"><span>Previsto al ${D1}: <span class="mono ${cls(pr.saldo)}">${eur(pr.saldo)}</span></span><span>${pr.left===1?'manca 1 giorno':'mancano '+pr.left+' giorni'}</span></div>
       <div class="bar" style="margin-top:8px"><i style="width:${Math.round(ci.frac*100)}%"></i></div></div>`
-    :`<div class="m-card"><div class="m-lb">${ci.status==='closed'?'Saldo finale del ciclo':'Saldo sul conto'}</div><div class="m-big">${eur0(t.attuale)}</div><div class="m-soft m-sm">${ci.status==='closed'?'Ciclo chiuso':'Ciclo non ancora iniziato'}</div></div>`;
-  const tiles=`<div class="m-2"><div class="m-card m-tile"><div class="m-lb">Residuo mese</div><div class="mono m-num ${cls(t.residuo)}">${eur0(t.residuo)}</div></div>
-    <div class="m-card m-tile"><div class="m-lb">Spese mese</div><div class="mono m-num">${eur0(t.spe)}</div></div></div>`;
+    :`<div class="m-card"><div class="m-lb">${ci.status==='closed'?'Saldo finale del ciclo':'Saldo sul conto'}</div><div class="m-big">${eur(t.attuale)}</div><div class="m-soft m-sm">${ci.status==='closed'?'Ciclo chiuso':'Ciclo non ancora iniziato'}</div></div>`;
+  const tiles=`<div class="m-2"><div class="m-card m-tile"><div class="m-lb">Residuo mese</div><div class="mono m-num ${cls(t.residuo)}">${eur(t.residuo)}</div></div>
+    <div class="m-card m-tile"><div class="m-lb">Spese mese</div><div class="mono m-num">${eur(t.spe)}</div></div></div>`;
   const NM=['Necessità','Svago','Risparmio'];
   const b503=`<div class="m-card"><div class="m-lb" style="margin-bottom:4px">50/30/20 sullo stipendio</div>${[0,1,2].map(i=>{const des=t.des[i],eff=t.eff[i];
       const bad=i<2?eff>des+0.005:eff<des-0.005;
-      return `<div class="m-row m-sm" style="margin-top:8px"><span>${NM[i]} <span class="m-soft">${[50,30,20][i]}%</span></span><span class="mono ${bad?'neg':''}">${eur0(eff)} / ${eur0(des)}</span></div><div class="bar"><i style="width:${pctW(eff,des)}%;background:${bad?'var(--neg)':'var(--pos)'}"></i></div>`;}).join('')}</div>`;
+      return `<div class="m-row m-sm" style="margin-top:8px"><span>${NM[i]} <span class="m-soft">${[50,30,20][i]}%</span></span><span class="mono ${bad?'neg':''}">${eur(eff)} / ${eur(des)}</span></div><div class="bar"><i style="width:${pctW(eff,des)}%;background:${bad?'var(--neg)':'var(--pos)'}"></i></div>`;}).join('')}</div>`;
   const due=FIX.reduce((a,b)=>a+m[b].filter(i=>!i.checked&&dueNow(i,ui.key)).length,0);
   const fissi=mDet('fissi',`<div><div>Spese fisse</div><div class="m-soft m-sm">Bollette, abbonamenti, debiti · ${due?(due===1?'1 da pagare':due+' da pagare'):'tutte pagate'}</div></div><span class="mono m-push">${eur(t.fissi)}</span>`,FIX.map(b=>mFixBlock(b,m)).join(''));
-  const ent=mDet('entrate',`<div><div>Entrate</div><div class="m-soft m-sm">Stipendio ${eur0(t.salary)}${Math.abs(t.entrateExtra)>0.004?' · extra '+eur0(t.entrateExtra):''}</div></div><span class="mono m-push">${eur(t.entrateTot)}</span>`,
+  const ent=mDet('entrate',`<div><div>Entrate</div><div class="m-soft m-sm">Stipendio ${eur(t.salary)}${Math.abs(t.entrateExtra)>0.004?' · extra '+eur(t.entrateExtra):''}</div></div><span class="mono m-push">${eur(t.entrateTot)}</span>`,
     `<div class="m-sub"><div class="m-row m-subh"><span class="m-lb">Entrate del ciclo</span><button class="m-link" data-act="mAddEnt">+ Aggiungi</button></div>${m.entrate.map(i=>mItem('entrate',i,`${chkBtn(i.checked&&!i.salary?'all':'none',`data-act="toggle" data-block="entrate" data-id="${i.id}"`,i.salary)}<span class="m-it-t">${esc(i.cat)}${i.salary?' <span class="tag">stipendio</span>':''}${i.once?' <span class="tag">1×</span>':''}</span><span class="mono ${cls(i.amount)}">${eur(i.amount)}</span>`)).join('')||'<div class="m-soft m-sm">Nessuna entrata</div>'}</div>`);
   const kv=(l,v,c,sub)=>`<div class="kv${sub?' sub':''}"><span class="l">${l}</span><span class="mono ${c||''}">${v}</span></div>`;
   const proj=pr?mDet('proj',`<div><div>Dettaglio saldo previsto</div><div class="m-soft m-sm">Fissi da pagare e spese stimate</div></div>`,
@@ -1055,7 +1055,7 @@ function mMese(){
     +(Math.abs(pr.attese)>0.004?kv('Entrate non ancora incassate',eur(pr.attese),cls(pr.attese)):'')
     +kv('Spese stimate nei '+pr.left+' giorni',eur(-pr.speseRem),'neg')+pr.cats.map(c=>kv(esc(c.cat),eur(-c.rem),'',1)).join('')+kv('Altre spese',eur(-pr.otherRem),'',1)
     +`<div class="kv big"><span class="l">Saldo previsto</span><span class="mono ${cls(pr.saldo)}">${eur(pr.saldo)}</span></div>`
-    +(pr.band!=null?kv('Margine di errore stimato','± '+eur0(pr.band))+kv('Intervallo',eur0(pr.saldo-pr.band)+' – '+eur0(pr.saldo+pr.band),'',1):'')):'';
+    +(pr.band!=null?kv('Margine di errore stimato','± '+eur(pr.band))+kv('Intervallo',eur(pr.saldo-pr.band)+' – '+eur(pr.saldo+pr.band),'',1):'')):'';
   const res=mDet('res',`<div><div>Dettaglio residuo del mese</div><div class="m-soft m-sm">Stipendio meno fissi e spese</div></div>`,
     kv('Entrate (stipendio)',eur(t.salary))+kv('Bollette',eur(t.boll),'',1)+kv('Abbonamenti (annuali in quota)',eur(t.abb),'',1)+kv('Debiti',eur(t.deb),'',1)
     +kv('Residuo mensile fisso',eur(t.residuoFisso),cls(t.residuoFisso))+kv('Spese del mese',eur(t.spe))+kv('Entrate extra',eur(t.entrateExtra))
@@ -1073,7 +1073,7 @@ function mSpese(){
     const over=bud!=null&&tot-bud<-0.004;
     let h=`<div class="m-cat"><div class="m-row m-cath" data-act="expand" data-cat="${ek}"><span class="m-it-t"><span class="m-chev ${open?'open':''}">›</span> ${ek} <span class="m-soft m-sm">${L.length}</span>${catOf(c)?'':' <span class="tag" style="border-color:var(--neg);color:var(--neg)">da associare</span>'}</span><span class="mono ${cls(tot)}">${eur(tot)}</span></div>
       <div class="bar"><i style="width:${w}%;background:${bud!=null?(over?'var(--neg)':'var(--pos)'):'var(--gold)'}"></i></div>
-      ${bud!=null?`<div class="m-soft m-sm" style="margin-top:3px">budget ${eur0(-bud)} · ${over?'<span class="neg">sforato di '+eur0(bud-tot)+'</span>':'rimasti '+eur0(tot-bud)}</div>`:''}`;
+      ${bud!=null?`<div class="m-soft m-sm" style="margin-top:3px">budget ${eur(-bud)} · ${over?'<span class="neg">sforato di '+eur(bud-tot)+'</span>':'rimasti '+eur(tot-bud)}</div>`:''}`;
     if(open)h+=`<div class="m-items">${L.map(i=>mItem('spese',i,`${chkBtn(i.checked?'all':'none',`data-act="toggle" data-block="spese" data-id="${i.id}"`)}<span class="m-it-d">${fmtShort(i.date)}</span><span class="m-it-t">${esc(i.desc||i.cat)}${i.once?' <span class="tag">1×</span>':''}</span><span class="mono ${cls(i.amount)}">${eur(i.amount)}</span>`)).join('')}
       <label class="m-bud"><span>Budget del mese per ${ek}</span><input class="cell num" inputmode="decimal" data-chg="catBudget" data-cat="${ek}" value="${bud!=null?numStr(bud):''}" placeholder="nessuno"></label></div>`;
     return h+'</div>';}).join('');
