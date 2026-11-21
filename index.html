@@ -1304,6 +1304,29 @@ async function initFile(){
     await loadData();
   }catch(e){fileFail(e);}
 }
+/* ---------- aggiornamento automatico della pagina ---------- */
+const nl=x=>String(x).replace(/\r\n?/g,'\n');
+const OWN_CODE=(()=>{const st=document.querySelector('style'),sc=document.currentScript;return nl((st?st.textContent:'')+'\u0000'+(sc?sc.textContent:''));})();
+if(new URLSearchParams(location.search).has('v'))history.replaceState(null,'',location.pathname);
+let updBusy=false;
+async function checkUpdate(manual){
+  if(updBusy)return false;
+  if(!manual&&(document.querySelector('dialog[open]')||(document.activeElement&&/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName))))return false;
+  updBusy=true;
+  try{
+    const r=await fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'});if(!r.ok)return false;
+    const d=new DOMParser().parseFromString(await r.text(),'text/html');
+    const st=d.querySelector('style'),scs=d.querySelectorAll('script'),sc=scs[scs.length-1];if(!sc)return false;
+    if(nl((st?st.textContent:'')+'\u0000'+sc.textContent)===OWN_CODE)return false;
+    let last=0;try{last=+sessionStorage.getItem('spese-upd')||0;}catch(e){}
+    if(Date.now()-last<60000)return false;
+    try{sessionStorage.setItem('spese-upd',String(Date.now()));}catch(e){}
+    await writing.catch(()=>{});
+    location.replace(location.pathname+'?v='+Date.now());
+    return true;
+  }catch(e){return false;}finally{updBusy=false;}
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});
 async function pullRefresh(){
   await writing.catch(()=>{});
   if(fileSt.status==='none'||fileSt.status==='checking')return 'skip';
@@ -1350,6 +1373,7 @@ async function pullRefresh(){
     if(dy<TH*.8){hide();return;}
     busy=true;el.classList.add('anim');show(60,'Aggiornamento…',true);
     let msg='Dati aggiornati';
+    if(await checkUpdate(true)){show(60,'Nuova versione: ricarico…',true);return;}
     try{const r=await pullRefresh();if(r==='same')msg='Già aggiornati';else if(r==='skip')msg='Accedi a Dropbox per aggiornare';}
     catch(err){fileFail(err);msg='Aggiornamento non riuscito';}
     show(60,msg,false);
@@ -1359,7 +1383,7 @@ async function pullRefresh(){
   window.addEventListener('touchcancel',()=>{y0=null;if(active){active=false;hide();}});
 })();
 window.__app={get state(){return state;},totals,projection,cycleInfo,simBase,tesoretto,esopTotNet,keys,ui,render,parseAmount,evalExpr};
-render();initFile();
+render();initFile();setTimeout(checkUpdate,1500);
 })();
 </script>
 </body>
