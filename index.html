@@ -152,7 +152,7 @@ dialog .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
 #ptr{position:fixed;left:50%;top:0;z-index:60;transform:translate(-50%,-60px);background:var(--bg2);border:1px solid var(--line);border-radius:20px;padding:7px 14px;font-size:13px;color:var(--soft);box-shadow:0 6px 18px rgba(0,0,0,.45);pointer-events:none;opacity:0;white-space:nowrap}
 #ptr.go{color:var(--gold);border-color:var(--gold)}
 #ptr.anim{transition:transform .25s ease,opacity .25s ease}
-@media (pointer:coarse){html,body{overscroll-behavior-y:contain}}
+html,body{overscroll-behavior-y:none}
 #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--gold);border-radius:10px;padding:10px 14px;display:none;gap:14px;align-items:center;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.5)}
 #toast.show{display:flex}
 .empty{color:var(--soft);padding:14px 4px;text-align:center}
@@ -1037,24 +1037,24 @@ async function pullRefresh(){
   let y0=null,x0=0,dy=0,active=false,busy=false;
   const show=(y,txt,go)=>{el.textContent=txt;el.classList.toggle('go',!!go);el.style.opacity=y>8?'1':'0';el.style.transform='translate(-50%,'+(y-50)+'px)';};
   const hide=()=>{el.classList.add('anim');show(0,el.textContent,false);};
+  const top=()=>Math.max(window.scrollY||0,(document.scrollingElement||document.documentElement).scrollTop||0);
   const blocked=t=>{
     if(t.closest('input,select,textarea,details.menu[open],#toast'))return true;
     for(let n=t;n&&n!==document.body;n=n.parentElement){if(n.scrollTop>0)return true;}
     return false;
   };
   document.addEventListener('touchstart',e=>{
-    if(busy||e.touches.length!==1||(window.scrollY||document.documentElement.scrollTop)>0||blocked(e.target)){y0=null;return;}
+    if(busy||e.touches.length!==1||top()>1||blocked(e.target)){y0=null;return;}
     y0=e.touches[0].clientY;x0=e.touches[0].clientX;dy=0;active=false;
   },{passive:true});
   document.addEventListener('touchmove',e=>{
     if(y0==null)return;
     const t=e.touches[0],ddy=t.clientY-y0,ddx=t.clientX-x0;
     if(!active){
-      if(Math.abs(ddx)>Math.abs(ddy)||ddy<=0){if(Math.abs(ddx)>10||ddy<-5)y0=null;return;}
-      if(ddy<10)return;
+      if(ddy<=0||Math.abs(ddx)>Math.abs(ddy)){if(Math.abs(ddx)>8||ddy<-3)y0=null;return;}
+      if(top()>1){y0=null;return;}
       active=true;el.classList.remove('anim');
     }
-    if((window.scrollY||document.documentElement.scrollTop)>0){y0=null;active=false;hide();return;}
     if(e.cancelable)e.preventDefault();
     dy=Math.min(MAX,ddy*.5);
     show(dy,dy>=TH*.8?'Rilascia per aggiornare':'Trascina per aggiornare',dy>=TH*.8);
