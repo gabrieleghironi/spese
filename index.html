@@ -921,7 +921,7 @@ const DBX_REDIRECT='https://gabrieleghironi.github.io/spese/';
 const DATA_NAME='spese-dati.json',DATA_PATH='/'+DATA_NAME;
 const TOK_KEY='spese-dbx-refresh';
 const fileSt={status:'checking',last:null,err:'',rev:null,loaded:false,pending:0,token:null,tokenExp:0};
-function fileStatusHtml(){return fileSt.last?'Salvato su Dropbox alle '+fileSt.last.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}):'Dati letti da Dropbox';}
+function fileStatusHtml(){return (fileSt.last?'Salvato su Dropbox alle '+fileSt.last.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}):'Dati letti da Dropbox')+' · v3';}
 function updFileBar(){const el=$('#file-status');if(el)el.innerHTML=fileStatusHtml();}
 function gateHtml(){
   let body,btn='';
@@ -1043,11 +1043,11 @@ async function pullRefresh(){
     for(let n=t;n&&n!==document.body;n=n.parentElement){if(n.scrollTop>0)return true;}
     return false;
   };
-  document.addEventListener('touchstart',e=>{
+  window.addEventListener('touchstart',e=>{
     if(busy||e.touches.length!==1||top()>1||blocked(e.target)){y0=null;return;}
     y0=e.touches[0].clientY;x0=e.touches[0].clientX;dy=0;active=false;
   },{passive:true});
-  document.addEventListener('touchmove',e=>{
+  window.addEventListener('touchmove',e=>{
     if(y0==null)return;
     const t=e.touches[0],ddy=t.clientY-y0,ddx=t.clientX-x0;
     if(!active){
@@ -1056,7 +1056,7 @@ async function pullRefresh(){
       active=true;el.classList.remove('anim');
     }
     if(e.cancelable)e.preventDefault();
-    dy=Math.min(MAX,ddy*.5);
+    dy=Math.min(MAX,Math.max(ddy*.5,-(window.scrollY||0)));
     show(dy,dy>=TH*.8?'Rilascia per aggiornare':'Trascina per aggiornare',dy>=TH*.8);
   },{passive:false});
   const end=async()=>{
@@ -1070,8 +1070,8 @@ async function pullRefresh(){
     show(60,msg,false);
     setTimeout(()=>{hide();busy=false;},900);
   };
-  document.addEventListener('touchend',end);
-  document.addEventListener('touchcancel',()=>{y0=null;if(active){active=false;hide();}});
+  window.addEventListener('touchend',end,{passive:true});
+  window.addEventListener('touchcancel',()=>{y0=null;if(active){active=false;hide();}});
 })();
 window.__app={get state(){return state;},totals,projection,cycleInfo,simBase,tesoretto,esopTotNet,keys,ui,render,parseAmount,evalExpr};
 render();initFile();
