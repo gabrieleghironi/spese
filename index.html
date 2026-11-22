@@ -1040,7 +1040,7 @@ function mMese(){
       <div class="bar" style="margin-top:8px"><i style="width:${Math.round(ci.frac*100)}%"></i></div></div>`
     :`<div class="m-card"><div class="m-lb">${ci.status==='closed'?'Saldo finale del ciclo':'Saldo sul conto'}</div><div class="m-big">${eur(t.attuale)}</div><div class="m-soft m-sm">${ci.status==='closed'?'Ciclo chiuso':'Ciclo non ancora iniziato'}</div></div>`;
   const tiles=`<div class="m-2"><div class="m-card m-tile"><div class="m-lb">Residuo mese</div><div class="mono m-num ${cls(t.residuo)}">${eur(t.residuo)}</div></div>
-    <div class="m-card m-tile"><div class="m-lb">Spese mese</div><div class="mono m-num">${eur(t.spe)}</div></div></div>`;
+    <div class="m-card m-tile"><div class="m-lb">Spese mese</div><div class="mono m-num">${eur(t.spe+t.fissi)}</div></div></div>`;
   const NM=['Necessità','Svago','Risparmio'];
   const b503=`<div class="m-card"><div class="m-lb" style="margin-bottom:4px">50/30/20 sullo stipendio</div>${[0,1,2].map(i=>{const des=t.des[i],eff=t.eff[i];
       const bad=i<2?eff>des+0.005:eff<des-0.005;
