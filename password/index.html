@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F1E33">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Password">
+<meta name="referrer" content="no-referrer">
+<title>Gestore Password</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0F1E33; --bg2:#13253D; --card:rgba(255,255,255,.035); --card2:rgba(255,255,255,.06);
+  --line:#28405F; --ink:#EDEEE8; --soft:#8FA3BF; --pos:#5FC9A8; --neg:#E4776E; --gold:#D9A94E;
+  --serif:'Fraunces',Georgia,serif; --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace; --sans:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box}
+html{color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:900px;margin:0 auto;padding:calc(14px + env(safe-area-inset-top)) 12px 90px}
+.top{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.brand{font-family:var(--serif);font-weight:500;font-size:24px;letter-spacing:.2px}
+.brand small{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-bottom:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{background:transparent;border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;color:var(--ink);transition:.15s}
+.btn:hover{border-color:var(--gold)}
+.btn.primary{background:var(--gold);border-color:var(--gold);color:#0F1E33;font-weight:600}
+.btn.sm{padding:4px 9px;font-size:12px}
+.btn.danger{border-color:var(--neg);color:var(--neg)}
+.btn:disabled{opacity:.5;cursor:default}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.status{font-family:var(--mono);font-size:11px;color:var(--soft)}
+.neg{color:var(--neg)}
+input.in,select.in,textarea.in{width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:10px 11px;outline:none}
+input.in:focus,select.in:focus,textarea.in:focus{border-color:var(--gold)}
+textarea.in{min-height:70px;resize:vertical}
+label.f{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);margin:12px 0 5px}
+.search{position:sticky;top:0;z-index:5;background:var(--bg);padding:6px 0 10px}
+.search input{font-size:16px;padding:12px 14px}
+.meta{display:flex;justify-content:space-between;align-items:center;margin:2px 2px 10px}
+.list{display:flex;flex-direction:column;gap:8px}
+.item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 12px}
+.item .h{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.item .acc{font-weight:600;font-size:15px;word-break:break-word}
+.badge{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);color:var(--soft);border-radius:20px;padding:1px 7px;margin-left:6px;vertical-align:2px}
+.badge.g{border-color:var(--gold);color:var(--gold)}
+.fld{display:flex;align-items:center;gap:6px;margin-top:6px;min-width:0}
+.fld .k{font-family:var(--mono);font-size:10px;color:var(--soft);text-transform:uppercase;width:34px;flex:none}
+.fld .v{font-family:var(--mono);font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fld .v.wrapv{white-space:normal;word-break:break-all}
+.note{margin-top:7px;font-size:12.5px;color:var(--soft);white-space:pre-wrap;word-break:break-word}
+.ib{background:none;border:1px solid transparent;cursor:pointer;color:var(--soft);padding:5px 8px;border-radius:7px;font-size:12px;flex:none}
+.ib:hover,.ib:active{color:var(--ink);border-color:var(--line)}
+.ib.d:hover{color:var(--neg);border-color:var(--neg)}
+.empty{text-align:center;color:var(--soft);padding:40px 10px}
+.fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:50%;background:var(--gold);color:#0F1E33;border:0;font-size:28px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.45);cursor:pointer;z-index:10}
+details.menu{position:relative}
+details.menu summary{list-style:none;cursor:pointer}
+details.menu summary::-webkit-details-marker{display:none}
+details.menu .pop{position:absolute;right:0;top:calc(100% + 6px);background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:6px;min-width:240px;z-index:20;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+details.menu .pop .btn{text-align:left}
+.ov{position:fixed;inset:0;background:rgba(5,12,22,.72);display:flex;align-items:flex-end;justify-content:center;z-index:50;padding:0}
+.modal{background:var(--bg2);border:1px solid var(--line);border-radius:16px 16px 0 0;width:100%;max-width:560px;max-height:92vh;overflow:auto;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
+@media (min-width:640px){.ov{align-items:center;padding:20px}.modal{border-radius:16px}}
+.modal h3{margin:0 0 6px;font-family:var(--serif);font-weight:500;font-size:20px}
+.modal .acts{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+.pw{display:flex;gap:6px}
+.pw input{flex:1}
+.gate{min-height:85vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.gate .card{max-width:460px;width:100%;padding:26px}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:20px;font-size:13px;z-index:60;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.chip{border:1px solid var(--line);border-radius:20px;padding:3px 10px;font-size:12px;background:none;color:var(--soft);cursor:pointer}
+.chip.on{border-color:var(--gold);color:var(--gold)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modal"></div>
+<div class="toast" id="toast"></div>
+<input type="file" id="imp-file" accept=".xlsx,.xls,.csv" style="display:none">
+<script>
+'use strict';
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+
+/* ---------- utilità ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const te=new TextEncoder(),td=new TextDecoder();
+const b64=buf=>{const u=new Uint8Array(buf);let s='';for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s);};
+const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+const b64url=buf=>b64(buf).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const uid=()=>b64url(crypto.getRandomValues(new Uint8Array(9)));
+function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function lsSet(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v);}catch(e){}}
+function ssGet(k){try{return sessionStorage.getItem(k);}catch(e){return null;}}
+function ssSet(k,v){try{v==null?sessionStorage.removeItem(k):sessionStorage.setItem(k,v);}catch(e){}}
+let toastT;
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),1800);}
+const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+
+/* ---------- cifratura (AES-GCM 256, chiave da PBKDF2-SHA256) ---------- */
+const KDF_ITER=600000;
+async function deriveKey(pw,salt,iter){
+  const base=await crypto.subtle.importKey('raw',te.encode(pw),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:iter,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+async function encryptVault(data){
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},vault.key,te.encode(JSON.stringify(data)));
+  return JSON.stringify({format:'gestore-password',v:1,kdf:{name:'PBKDF2',hash:'SHA-256',iter:vault.iter,salt:b64(vault.salt)},cipher:'AES-GCM',iv:b64(iv),ct:b64(ct)});
+}
+async function decryptEnvelope(env,pw){
+  const salt=unb64(env.kdf.salt),iter=env.kdf.iter;
+  const key=await deriveKey(pw,salt,iter);
+  let pt;try{pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(env.iv)},key,unb64(env.ct));}
+  catch(e){throw Object.assign(new Error('Password principale errata'),{badpw:true});}
+  return {key,salt,iter,data:JSON.parse(td.decode(pt))};
+}
+
+/* ---------- stato ---------- */
+const vault={key:null,salt:null,iter:KDF_ITER,data:null,env:null};
+const ui={q:'',via:'',shown:new Set(),busy:false};
+const VIAS=['','Google','Apple','SPID','Altro'];
+const st={status:'checking',err:'',rev:null,last:null,pending:0,token:null,tokenExp:0};
+
+/* ---------- Dropbox (cartella dell'app, stessa app della dashboard spese) ---------- */
+const DBX_KEY='6ltb0ryesnuc5yk';
+const DBX_REDIRECT=location.origin+location.pathname.replace(/[^/]*$/,'');
+const DATA_NAME='password-dati.json',DATA_PATH='/'+DATA_NAME;
+const TOK_KEY='pwd-dbx-refresh',PKCE_KEY='pwd-dbx-pkce';
+async function dbxLoginStart(){
+  const ver=b64url(crypto.getRandomValues(new Uint8Array(48)));
+  const ch=b64url(await crypto.subtle.digest('SHA-256',te.encode(ver)));
+  const s=b64url(crypto.getRandomValues(new Uint8Array(12)));
+  ssSet(PKCE_KEY,JSON.stringify({ver,st:s}));
+  const q=new URLSearchParams({client_id:DBX_KEY,response_type:'code',code_challenge:ch,code_challenge_method:'S256',redirect_uri:DBX_REDIRECT,token_access_type:'offline',scope:'files.content.read files.content.write',state:s});
+  location.href='https://www.dropbox.com/oauth2/authorize?'+q.toString();
+}
+async function tokenReq(params){
+  const r=await fetch('https://api.dropboxapi.com/oauth2/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(Object.assign({client_id:DBX_KEY},params))});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok)throw Object.assign(new Error(j.error_description||j.error||('accesso Dropbox non riuscito ('+r.status+')')),{auth:true});
+  st.token=j.access_token;st.tokenExp=Date.now()+((j.expires_in||14400)-120)*1000;
+  if(j.refresh_token)lsSet(TOK_KEY,j.refresh_token);
+}
+async function getToken(force){
+  if(!force&&st.token&&Date.now()<st.tokenExp)return st.token;
+  const rt=lsGet(TOK_KEY);if(!rt)throw Object.assign(new Error('accesso Dropbox scaduto'),{auth:true});
+  await tokenReq({grant_type:'refresh_token',refresh_token:rt});return st.token;
+}
+async function dbx(url,arg,body){
+  for(let i=0;i<2;i++){
+    const tk=await getToken(i>0);
+    const hd={'Authorization':'Bearer '+tk,'Dropbox-API-Arg':JSON.stringify(arg)};if(body!=null)hd['Content-Type']='application/octet-stream';
+    let r;try{r=await fetch(url,{method:'POST',headers:hd,body:body==null?undefined:body});}catch(e){throw new Error('connessione a Dropbox non riuscita');}
+    if(r.status===401&&i===0)continue;
+    if(r.status===401)throw Object.assign(new Error('accesso Dropbox non valido'),{auth:true});
+    return r;
+  }
+}
+async function readData(){
+  const r=await dbx('https://content.dropboxapi.com/2/files/download',{path:DATA_PATH});
+  if(r.status===409){const j=await r.json().catch(()=>({}));if(/not_found/.test(JSON.stringify(j)))return null;throw new Error('Dropbox: '+(j.error_summary||409));}
+  if(!r.ok)throw new Error('lettura da Dropbox non riuscita ('+r.status+')');
+  const meta=JSON.parse(r.headers.get('Dropbox-API-Result')||'{}');
+  return {txt:await r.text(),rev:meta.rev||null};
+}
+let writing=Promise.resolve();
+function persist(){
+  if(!vault.key)return Promise.resolve();
+  vault.data.updatedAt=new Date().toISOString();
+  const snapshot=JSON.parse(JSON.stringify(vault.data));
+  st.pending++;updBar();
+  writing=writing.then(async()=>{
+    if(st.status!=='ok'&&st.status!=='setup')return;
+    try{
+      const txt=await encryptVault(snapshot);
+      const arg={path:DATA_PATH,mode:st.rev?{'.tag':'update',update:st.rev}:{'.tag':'add'},autorename:false,mute:true};
+      const r=await dbx('https://content.dropboxapi.com/2/files/upload',arg,new Blob([txt],{type:'application/octet-stream'}));
+      if(r.status===409){const j=await r.json().catch(()=>({}));if(/conflict/.test(JSON.stringify(j))){st.status='conflict';lockMem();render();return;}throw new Error('Dropbox: '+(j.error_summary||409));}
+      if(!r.ok)throw new Error('salvataggio su Dropbox non riuscito ('+r.status+')');
+      const j=await r.json();st.rev=j.rev;st.last=new Date();vault.env=JSON.parse(txt);
+    }catch(e){fail(e);}
+  }).finally(()=>{st.pending--;updBar();});
+  return writing;
+}
+addEventListener('beforeunload',e=>{if(st.pending>0){e.preventDefault();e.returnValue='';}});
+function fail(e){
+  if(e&&e.auth){lsSet(TOK_KEY,null);st.token=null;st.status='none';}
+  else{st.status='error';st.err=(e&&e.message)||String(e);}
+  lockMem();render();
+}
+async function loadData(){
+  st.status='checking';render();
+  const d=await readData();
+  if(!d){st.rev=null;st.status='missing';render();return;}
+  let env;try{env=JSON.parse(d.txt);}catch(e){throw new Error(DATA_NAME+' non è leggibile');}
+  if(!env||env.format!=='gestore-password'||!env.kdf||!env.ct)throw new Error(DATA_NAME+' non è un archivio valido');
+  vault.env=env;st.rev=d.rev;st.status='locked';render();
+}
+async function boot(){
+  const p=new URLSearchParams(location.search);
+  if(p.get('code')||p.get('error')){
+    const saved=JSON.parse(ssGet(PKCE_KEY)||'null');ssSet(PKCE_KEY,null);
+    history.replaceState(null,'',DBX_REDIRECT);
+    if(p.get('error')){st.status='none';render();return;}
+    if(!saved||saved.st!==p.get('state')){st.status='error';st.err='risposta di accesso Dropbox non valida, riprova';render();return;}
+    try{await tokenReq({grant_type:'authorization_code',code:p.get('code'),code_verifier:saved.ver,redirect_uri:DBX_REDIRECT});}
+    catch(e){fail(e);return;}
+  }
+  if(!lsGet(TOK_KEY)){st.status='none';render();return;}
+  try{await loadData();}catch(e){fail(e);}
+}
+
+/* ---------- blocco automatico ---------- */
+const IDLE_MS=5*60*1000,HIDDEN_MS=60*1000;
+let idleT,hiddenAt=0;
+function lockMem(){vault.key=null;vault.data=null;ui.shown.clear();closeModal();}
+function lockNow(){if(st.status!=='ok')return;lockMem();st.status='locked';render();}
+function bumpIdle(){clearTimeout(idleT);if(st.status==='ok')idleT=setTimeout(lockNow,IDLE_MS);}
+['pointerdown','keydown','scroll','touchstart'].forEach(ev=>addEventListener(ev,bumpIdle,{passive:true}));
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){hiddenAt=Date.now();}
+  else if(hiddenAt&&Date.now()-hiddenAt>HIDDEN_MS&&st.pending===0){lockNow();}
+});
+
+/* ---------- rendering ---------- */
+function gate(title,body,btns){
+  return `<div class="gate"><div class="card"><div class="brand" style="margin-bottom:14px"><small>Credenziali</small>Gestore Password</div>${title?`<p style="margin:0 0 6px;font-weight:600">${title}</p>`:''}<div style="margin:0 0 18px">${body}</div><div class="row">${btns||''}</div></div></div>`;
+}
+function render(){
+  const app=$('#app');
+  switch(st.status){
+    case 'checking':app.innerHTML=gate('','Apertura dei dati in corso…');return;
+    case 'none':app.innerHTML=gate('','Accedi con Dropbox per aprire l\'archivio delle password. L\'accesso resta attivo su questo dispositivo.','<button class="btn primary" data-act="login">Accedi con Dropbox</button>');return;
+    case 'missing':
+      app.innerHTML=gate('Crea l\'archivio',`<p style="margin:0 0 10px">Su Dropbox non c'è ancora <span class="status">${DATA_NAME}</span>. Scegli una password principale: servirà ogni volta per aprire l'app e cifra tutto il contenuto.</p><p class="neg" style="margin:0 0 6px;font-size:13px">Se la dimentichi, i dati non sono recuperabili.</p><label class="f">Password principale (almeno 10 caratteri)</label><input class="in" type="password" id="mp1" autocomplete="new-password"><label class="f">Ripeti</label><input class="in" type="password" id="mp2" autocomplete="new-password"><div class="status neg" id="gerr" style="margin-top:8px"></div>`,'<button class="btn primary" data-act="create">Crea archivio</button><button class="btn" data-act="logout">Esci da Dropbox</button>');
+      return;
+    case 'setup':app.innerHTML=gate('','Creazione dell\'archivio cifrato…');return;
+    case 'locked':
+      app.innerHTML=gate('',`<label class="f" style="margin-top:0">Password principale</label><form id="unlock-f" onsubmit="return false"><input class="in" type="password" id="mp" autocomplete="current-password" autofocus></form><div class="status neg" id="gerr" style="margin-top:8px"></div>`,'<button class="btn primary" data-act="unlock" id="unlock-b">Sblocca</button><button class="btn" data-act="reload">Ricarica da Dropbox</button>');
+      setTimeout(()=>{const i=$('#mp');if(i)i.focus();},50);
+      return;
+    case 'conflict':app.innerHTML=gate('Modifica da un altro dispositivo',DATA_NAME+' è stato modificato altrove. Per non sovrascriverlo l\'app si è fermata: ricarica i dati. L\'ultima modifica fatta qui non è stata salvata.','<button class="btn primary" data-act="reload">Ricarica i dati</button>');return;
+    case 'error':app.innerHTML=gate('',`<span class="neg">Errore: ${esc(st.err)}</span>`,'<button class="btn primary" data-act="reload">Riprova</button><button class="btn" data-act="logout">Esci da Dropbox</button>');return;
+  }
+  renderMain();
+}
+function filtered(){
+  const q=norm(ui.q).trim();
+  return vault.data.items.filter(it=>{
+    if(ui.via==='__none'){if(it.via)return false;}else if(ui.via&&it.via!==ui.via)return false;
+    if(!q)return true;
+    return norm(it.account+' '+it.username+' '+it.owner+' '+it.note).includes(q);
+  }).sort((a,b)=>a.account.localeCompare(b.account,'it',{sensitivity:'base'}));
+}
+function itemHtml(it){
+  const shown=ui.shown.has(it.id);
+  const viaB=it.via?`<span class="badge g">${esc(it.via)}</span>`:'';
+  const ownB=it.owner?`<span class="badge">${esc(it.owner)}</span>`:'';
+  const user=it.username?`<div class="fld"><span class="k">User</span><span class="v">${esc(it.username)}</span><button class="ib" data-act="copyU" data-id="${it.id}">Copia</button></div>`:'';
+  const pass=it.password?`<div class="fld"><span class="k">Pwd</span><span class="v${shown?' wrapv':''}">${shown?esc(it.password):'••••••••••'}</span><button class="ib" data-act="toggle" data-id="${it.id}">${shown?'Nascondi':'Mostra'}</button><button class="ib" data-act="copyP" data-id="${it.id}">Copia</button></div>`:'';
+  const note=it.note?`<div class="note">${esc(it.note)}</div>`:'';
+  return `<div class="item"><div class="h"><div class="acc">${esc(it.account)}${viaB}${ownB}</div><div class="row" style="gap:2px;flex-wrap:nowrap"><button class="ib" data-act="edit" data-id="${it.id}">Modifica</button><button class="ib d" data-act="del" data-id="${it.id}">Elimina</button></div></div>${user}${pass}${note}</div>`;
+}
+function barText(){
+  if(st.pending>0)return 'Salvataggio su Dropbox…';
+  return st.last?'Salvato su Dropbox alle '+st.last.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}):'Dati cifrati su Dropbox';
+}
+function updBar(){const el=$('#bar');if(el)el.textContent=barText();}
+function renderMain(){
+  const app=$('#app');
+  if(!$('#main')){
+    app.innerHTML=`<div class="wrap" id="main">
+      <div class="top"><div class="brand"><small>Credenziali</small>Gestore Password</div>
+        <div class="row"><button class="btn sm" data-act="lock">Blocca</button>
+        <details class="menu" id="menu"><summary class="btn sm">Menu</summary><div class="pop">
+          <button class="btn" data-act="import">Importa da Excel / CSV</button>
+          <button class="btn" data-act="exportCsv">Esporta CSV (in chiaro)</button>
+          <button class="btn" data-act="chpw">Cambia password principale</button>
+          <button class="btn" data-act="reload">Ricarica da Dropbox</button>
+          <button class="btn" data-act="logout">Esci da Dropbox</button>
+        </div></details></div></div>
+      <div class="search"><input class="in" id="q" type="search" placeholder="Cerca sito, username, note…" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+      <div class="chips" id="chips"></div>
+      <div class="meta"><span class="status" id="count"></span><span class="status" id="bar"></span></div>
+      <div class="list" id="list"></div>
+    </div><button class="fab" data-act="add" aria-label="Nuova utenza">+</button>`;
+    const q=$('#q');q.value=ui.q;q.addEventListener('input',()=>{ui.q=q.value;renderList();});
+  }
+  renderList();updBar();
+}
+function renderList(){
+  const counts={};vault.data.items.forEach(i=>{const k=i.via||'__none';counts[k]=(counts[k]||0)+1;});
+  const chips=[['','Tutte'],['__none','Credenziali'],...VIAS.slice(1).map(v=>[v,v])].filter(([k])=>k===''||counts[k]);
+  $('#chips').innerHTML=chips.length>2?chips.map(([k,l])=>`<button class="chip${ui.via===k?' on':''}" data-act="via" data-via="${esc(k)}">${esc(l)}</button>`).join(''):'';
+  const rows=filtered();
+  $('#count').textContent=rows.length===vault.data.items.length?rows.length+' utenze':rows.length+' di '+vault.data.items.length;
+  $('#list').innerHTML=rows.length?rows.map(itemHtml).join(''):`<div class="empty">${vault.data.items.length?'Nessun risultato':'Archivio vuoto. Aggiungi un\'utenza con + oppure importa il tuo Excel dal Menu.'}</div>`;
+}
+
+/* ---------- modali ---------- */
+function openModal(html){$('#modal').innerHTML=`<div class="ov" data-act="ovclose"><div class="modal">${html}</div></div>`;const m=$('#modal');const menu=$('#menu');if(menu)menu.open=false;return m;}
+function closeModal(){const m=$('#modal');if(m)m.innerHTML='';}
+function genPw(n=20){
+  const sets=['ABCDEFGHJKLMNPQRSTUVWXYZ','abcdefghijkmnopqrstuvwxyz','23456789','!#$%&*+-=?@_'];
+  const all=sets.join('');const out=[];
+  const rnd=m=>{const a=new Uint32Array(1);const lim=Math.floor(0x100000000/m)*m;let x;do{crypto.getRandomValues(a);x=a[0];}while(x>=lim);return x%m;};
+  sets.forEach(s=>out.push(s[rnd(s.length)]));
+  while(out.length<n)out.push(all[rnd(all.length)]);
+  for(let i=out.length-1;i>0;i--){const j=rnd(i+1);[out[i],out[j]]=[out[j],out[i]];}
+  return out.join('');
+}
+function editModal(id){
+  const it=id?vault.data.items.find(x=>x.id===id):{account:'',username:'',password:'',via:'',owner:'',note:''};
+  if(!it)return;
+  openModal(`<h3>${id?'Modifica utenza':'Nuova utenza'}</h3>
+    <label class="f">Sito / Account</label><input class="in" id="e-acc" value="${esc(it.account)}" autocomplete="off">
+    <label class="f">Username / Email</label><input class="in" id="e-user" value="${esc(it.username)}" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <label class="f">Password</label><div class="pw"><input class="in" id="e-pass" type="password" value="${esc(it.password)}" autocomplete="new-password" autocapitalize="off" spellcheck="false"><button class="btn sm" data-act="eye">Mostra</button><button class="btn sm" data-act="gen">Genera</button></div>
+    <label class="f">Accesso tramite</label><select class="in" id="e-via">${VIAS.map(v=>`<option value="${v}"${it.via===v?' selected':''}>${v||'Credenziali (user e password)'}</option>`).join('')}</select>
+    <label class="f">Intestatario (se non tuo)</label><input class="in" id="e-own" value="${esc(it.owner)}" autocomplete="off">
+    <label class="f">Note</label><textarea class="in" id="e-note">${esc(it.note)}</textarea>
+    <div class="status neg" id="e-err" style="margin-top:8px"></div>
+    <div class="acts"><button class="btn" data-act="close">Annulla</button><button class="btn primary" data-act="save" data-id="${id||''}">Salva</button></div>`);
+  if(!id)setTimeout(()=>{const x=$('#e-acc');if(x)x.focus();},50);
+}
+function saveEdit(id){
+  const v={account:$('#e-acc').value.trim(),username:$('#e-user').value.trim(),password:$('#e-pass').value,via:$('#e-via').value,owner:$('#e-own').value.trim(),note:$('#e-note').value.trim()};
+  if(!v.account){$('#e-err').textContent='Inserisci il sito o account';return;}
+  const now=new Date().toISOString();
+  if(id){const it=vault.data.items.find(x=>x.id===id);Object.assign(it,v,{updated:now});}
+  else vault.data.items.push(Object.assign({id:uid(),created:now,updated:now},v));
+  closeModal();renderList();persist();toast('Salvato');
+}
+function delModal(id){
+  const it=vault.data.items.find(x=>x.id===id);if(!it)return;
+  openModal(`<h3>Eliminare l'utenza?</h3><p style="margin:6px 0 0"><b>${esc(it.account)}</b>${it.username?'<br><span class="status">'+esc(it.username)+'</span>':''}</p><div class="acts"><button class="btn" data-act="close">Annulla</button><button class="btn danger" data-act="delok" data-id="${id}">Elimina</button></div>`);
+}
+function chpwModal(){
+  openModal(`<h3>Cambia password principale</h3>
+    <label class="f">Password attuale</label><input class="in" type="password" id="c-old" autocomplete="current-password">
+    <label class="f">Nuova password (almeno 10 caratteri)</label><input class="in" type="password" id="c-n1" autocomplete="new-password">
+    <label class="f">Ripeti nuova password</label><input class="in" type="password" id="c-n2" autocomplete="new-password">
+    <div class="status neg" id="c-err" style="margin-top:8px"></div>
+    <div class="acts"><button class="btn" data-act="close">Annulla</button><button class="btn primary" data-act="chpwok">Cambia</button></div>`);
+}
+async function doChpw(){
+  const o=$('#c-old').value,n1=$('#c-n1').value,n2=$('#c-n2').value,err=$('#c-err');
+  if(n1.length<10){err.textContent='Almeno 10 caratteri';return;}
+  if(n1!==n2){err.textContent='Le due password non coincidono';return;}
+  err.textContent='Verifica…';
+  try{await decryptEnvelope(vault.env,o);}catch(e){err.textContent='Password attuale errata';return;}
+  vault.salt=crypto.getRandomValues(new Uint8Array(16));vault.iter=KDF_ITER;vault.key=await deriveKey(n1,vault.salt,vault.iter);
+  closeModal();await persist();toast('Password principale cambiata');
+}
+
+/* ---------- copia negli appunti ---------- */
+let clipT;
+async function copy(text,isPw){
+  try{await navigator.clipboard.writeText(text);}
+  catch(e){const t=document.createElement('textarea');t.value=text;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();try{document.execCommand('copy');}catch(_){}t.remove();}
+  toast(isPw?'Password copiata (appunti svuotati tra 30 s)':'Copiato');
+  if(isPw){clearTimeout(clipT);clipT=setTimeout(()=>{navigator.clipboard&&navigator.clipboard.writeText('').catch(()=>{});},30000);}
+}
+
+/* ---------- import da Excel / CSV ---------- */
+const VIA_RE=/^\s*(?:accesso\s+(?:con\s+)?)?(google|apple|spid)\s*$/i;
+function loadXlsxLib(){
+  if(window.XLSX)return Promise.resolve();
+  return new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js';s.onload=res;s.onerror=()=>rej(new Error('libreria Excel non scaricata, controlla la connessione'));document.head.appendChild(s);});
+}
+function parseRows(rows){
+  rows=rows.map(r=>(r||[]).map(c=>String(c==null?'':c).trim()));
+  let h=rows.findIndex(r=>r.some(c=>/^(account|sito|site|servizio|nome)$/i.test(c)));
+  let a,u,p;
+  if(h>=0){
+    const r=rows[h];a=r.findIndex(c=>/^(account|sito|site|servizio|nome)$/i.test(c));
+    u=r.findIndex(c=>/^(user|username|utente|login|email|e-mail)$/i.test(c));if(u<0)u=a+1;
+    p=r.findIndex(c=>/^(password|pwd|pass)$/i.test(c));if(p<0)p=u+1;
+  }else{h=-1;a=rows.reduce((m,r)=>{const i=r.findIndex(c=>c);return i>=0&&(m<0||i<m)?i:m;},-1);if(a<0)a=0;u=a+1;p=a+2;}
+  const out=[];
+  for(let i=h+1;i<rows.length;i++){
+    const r=rows[i];const acc=r[a]||'';
+    const rest=r.filter((c,j)=>j!==a&&j!==u&&j!==p&&c);
+    if(!acc)continue;
+    let user=r[u]||'',pass=r[p]||'',via='';
+    const notes=[];
+    if(VIA_RE.test(user)){via=user.match(VIA_RE)[1];user='';}
+    else if(VIA_RE.test(pass)){via=pass.match(VIA_RE)[1];pass='';}
+    else if(/^accesso\s+/i.test(user)){notes.push(user);user='';}
+    else if(user&&!pass&&!user.includes('@')){pass=user;user='';}
+    if(via)via=via.toUpperCase()==='SPID'?'SPID':via[0].toUpperCase()+via.slice(1).toLowerCase();
+    notes.push(...rest);
+    if(!user&&!pass&&!via&&!notes.length)continue;
+    out.push({account:acc,username:user,password:pass,via,owner:'',note:notes.join('\n')});
+  }
+  return out;
+}
+async function readImportFile(f){
+  const name=f.name.toLowerCase();
+  if(name.endsWith('.csv')){
+    await loadXlsxLib();
+    const wb=XLSX.read(await f.text(),{type:'string'});
+    return parseRows(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:false,defval:''}));
+  }
+  await loadXlsxLib();
+  const wb=XLSX.read(new Uint8Array(await f.arrayBuffer()),{type:'array'});
+  return parseRows(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:false,defval:''}));
+}
+let importBuf=null;
+const sameKey=x=>norm(x.account)+'\u0001'+norm(x.username)+'\u0001'+x.password;
+function importModal(list){
+  importBuf=list;
+  const have=new Set(vault.data.items.map(sameKey));
+  const dup=list.filter(x=>have.has(sameKey(x))).length;
+  const vias=list.filter(x=>x.via).length;
+  openModal(`<h3>Importazione</h3>
+    <p style="margin:6px 0">Trovate <b>${list.length}</b> utenze nel file.${vias?` ${vias} con accesso tramite Google, Apple o SPID.`:''}${dup?` ${dup} già presenti identiche.`:''}</p>
+    <p class="status" style="margin:0">I dati vengono letti solo su questo dispositivo e salvati cifrati su Dropbox.</p>
+    <div class="acts"><button class="btn" data-act="close">Annulla</button>${vault.data.items.length?'<button class="btn danger" data-act="impReplace">Sostituisci tutto</button>':''}<button class="btn primary" data-act="impAdd">${vault.data.items.length?'Aggiungi le nuove':'Importa'}</button></div>`);
+}
+function doImport(replace){
+  const now=new Date().toISOString();
+  const mk=x=>Object.assign({id:uid(),created:now,updated:now},x);
+  let added;
+  if(replace){vault.data.items=importBuf.map(mk);added=importBuf.length;}
+  else{const have=new Set(vault.data.items.map(sameKey));const nu=importBuf.filter(x=>!have.has(sameKey(x)));nu.forEach(x=>{have.add(sameKey(x));vault.data.items.push(mk(x));});added=nu.length;}
+  importBuf=null;closeModal();renderList();persist();
+  openModal(`<h3>Importate ${added} utenze</h3><p style="margin:6px 0">Controlla che sia tutto corretto, poi elimina il file Excel originale da Dropbox: è in chiaro. Ricorda di svuotarlo anche da "File eliminati".</p><div class="acts"><button class="btn primary" data-act="close">Ok</button></div>`);
+}
+$('#imp-file').addEventListener('change',async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{const list=await readImportFile(f);if(!list.length)throw new Error('nessuna utenza riconosciuta nel file');importModal(list);}
+  catch(err){openModal(`<h3>Importazione non riuscita</h3><p class="neg">${esc(err.message)}</p><div class="acts"><button class="btn" data-act="close">Chiudi</button></div>`);}
+});
+function exportCsv(){
+  const cols=['account','username','password','via','owner','note'];
+  const q=s=>'"'+String(s||'').replace(/"/g,'""')+'"';
+  const csv='﻿'+['Account;Username;Password;Accesso;Intestatario;Note',...vault.data.items.map(it=>cols.map(c=>q(it[c])).join(';'))].join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='password.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+
+/* ---------- azioni ---------- */
+async function unlock(){
+  const i=$('#mp'),err=$('#gerr'),b=$('#unlock-b');if(!i||!i.value)return;
+  b.disabled=true;err.textContent='';err.classList.remove('neg');err.textContent='Verifica…';
+  try{
+    const r=await decryptEnvelope(vault.env,i.value);
+    Object.assign(vault,{key:r.key,salt:r.salt,iter:r.iter,data:r.data});
+    if(!Array.isArray(vault.data.items))vault.data.items=[];
+    st.status='ok';render();bumpIdle();
+  }catch(e){err.classList.add('neg');err.textContent=e.badpw?'Password principale errata':e.message;b.disabled=false;i.select();}
+}
+async function createVault(){
+  const p1=$('#mp1').value,p2=$('#mp2').value,err=$('#gerr');
+  if(p1.length<10){err.textContent='Almeno 10 caratteri';return;}
+  if(p1!==p2){err.textContent='Le due password non coincidono';return;}
+  st.status='setup';render();
+  vault.salt=crypto.getRandomValues(new Uint8Array(16));vault.iter=KDF_ITER;vault.key=await deriveKey(p1,vault.salt,vault.iter);
+  vault.data={v:1,items:[],createdAt:new Date().toISOString()};
+  st.rev=null;await persist();
+  if(st.status==='setup'){st.status='ok';render();bumpIdle();}
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&st.status==='locked'&&e.target.id==='mp'){e.preventDefault();unlock();}
+  if(e.key==='Enter'&&st.status==='missing'&&e.target.id==='mp2'){e.preventDefault();createVault();}
+  if(e.key==='Escape')closeModal();
+});
+document.addEventListener('click',e=>{
+  const menu=$('#menu');if(menu&&menu.open&&!menu.contains(e.target))menu.open=false;
+  const t=e.target.closest('[data-act]');if(!t)return;
+  const act=t.dataset.act,id=t.dataset.id;
+  if(act==='ovclose'){if(e.target===t)closeModal();return;}
+  const it=id?vault.data&&vault.data.items.find(x=>x.id===id):null;
+  switch(act){
+    case 'login':dbxLoginStart();break;
+    case 'logout':lsSet(TOK_KEY,null);st.token=null;lockMem();vault.env=null;st.status='none';render();break;
+    case 'reload':lockMem();loadData().catch(fail);break;
+    case 'unlock':unlock();break;
+    case 'create':createVault();break;
+    case 'lock':lockNow();break;
+    case 'add':editModal(null);break;
+    case 'edit':editModal(id);break;
+    case 'save':saveEdit(id);break;
+    case 'del':delModal(id);break;
+    case 'delok':vault.data.items=vault.data.items.filter(x=>x.id!==id);closeModal();renderList();persist();toast('Eliminata');break;
+    case 'close':closeModal();break;
+    case 'toggle':ui.shown.has(id)?ui.shown.delete(id):ui.shown.add(id);renderList();break;
+    case 'copyU':if(it)copy(it.username,false);break;
+    case 'copyP':if(it)copy(it.password,true);break;
+    case 'via':ui.via=t.dataset.via;renderList();break;
+    case 'eye':{const p=$('#e-pass');p.type=p.type==='password'?'text':'password';t.textContent=p.type==='password'?'Mostra':'Nascondi';break;}
+    case 'gen':{const p=$('#e-pass');p.value=genPw();p.type='text';const b=p.parentNode.querySelector('[data-act="eye"]');if(b)b.textContent='Nascondi';break;}
+    case 'import':{const m=$('#menu');if(m)m.open=false;$('#imp-file').click();break;}
+    case 'impAdd':doImport(false);break;
+    case 'impReplace':doImport(true);break;
+    case 'exportCsv':{const m=$('#menu');if(m)m.open=false;openModal(`<h3>Esportare in chiaro?</h3><p style="margin:6px 0">Il file CSV conterrà tutte le password leggibili. Conservalo con attenzione e cancellalo dopo l'uso.</p><div class="acts"><button class="btn" data-act="close">Annulla</button><button class="btn primary" data-act="exportOk">Esporta</button></div>`);break;}
+    case 'exportOk':closeModal();exportCsv();break;
+    case 'chpw':chpwModal();break;
+    case 'chpwok':doChpw();break;
+  }
+});
+if(typeof window.__TEST__==='undefined')boot();
+</script>
+</body>
+</html>
